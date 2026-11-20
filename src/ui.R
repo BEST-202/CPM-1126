@@ -8,6 +8,8 @@ NAV_ITEMS <- list(
   list(id = "vintage",       label = "Vintage Curves & Staging IFRS 9",  icon = "chart-line"),
   list(id = "arrears",       label = "Arriérés Précoces & Recouvrement", icon = "hourglass-half"),
   list(id = "concentration", label = "Risque de Concentration & HHI",    icon = "circle-nodes"),
+  list(id = "limits",        label = "Limites d'Exposition",             icon = "ruler-combined"),
+  list(id = "quality",       label = "Qualité des Actifs Agences",       icon = "magnifying-glass-chart"),
   list(id = "performance",   label = "Performance RMs & Agences",        icon = "briefcase"),
   list(id = "stress",        label = "Stress Testing & RAROC",           icon = "wave-square"),
   list(id = "report",        label = "Reporting Réglementaire",          icon = "file-shield")
@@ -256,6 +258,85 @@ page_concentration <- tagList(
   )
 )
 
+page_limits <- tagList(
+  page_header("Appétit au risque & limites prudentielles", "Analyse des Limites d'Exposition & de Concentration",
+              tag = "Cadre de limites : individuelles, grands risques, secteurs, régions, segments, devises, délégations",
+              right = downloadButton("dl_limits", "Exporter le tableau des limites (CSV)", class = "btn-red")),
+  uiOutput("lm_kpis"),
+  layout_columns(
+    col_widths = c(5, 7),
+    card_x("Taux d'Utilisation des Limites", icon_name = "gauge-high",
+           subtitle = "Exposition actuelle en % de la limite (100 % = limite atteinte)",
+           plotlyOutput("lm_util", height = "620px")),
+    card_x("Tableau de Bord des Limites", icon_name = "table-list",
+           subtitle = "Valeur actuelle, limite, utilisation, marge disponible et statut",
+           right = seg_toggle("lm_cat", c("Toutes" = "ALL", "Contrepartie" = "Contrepartie", "Secteur" = "Secteur",
+                                          "Région" = "Région", "Segment" = "Segment", "Autres" = "Autres")),
+           DTOutput("lm_table"))
+  ),
+  layout_columns(
+    col_widths = c(7, 5),
+    card_x("Grands Risques (> 10 % des Fonds Propres)", icon_name = "triangle-exclamation",
+           subtitle = sprintf("Groupes dont l'exposition dépasse %s des fonds propres — limite individuelle %s, cumul max %s des fonds propres",
+                              fmt_pct(SEUIL_GRAND_RISQUE, 0), fmt_pct(LIMITE_INDIV, 0), paste0(LIMITE_GRANDS_RISQUES * 100, " %")),
+           DTOutput("lm_large")),
+    card_x("Concentration Région × Secteur", icon_name = "table-cells",
+           subtitle = "Part de l'encours total (cellules rouges : > 5 %)",
+           plotlyOutput("lm_heat", height = "420px"))
+  ),
+  card_x("Capacité d'Octroi Résiduelle par Secteur & Région", icon_name = "battery-half",
+         subtitle = "Montant encore mobilisable avant d'atteindre la limite (à encours total constant)",
+         plotlyOutput("lm_headroom", height = "330px"))
+)
+
+page_quality <- tagList(
+  page_header("Réseau d'agences & qualité du portefeuille", "Performance des Agences : Qualité des Actifs, Délégations & Concentration NPL",
+              tag = sprintf("Pouvoir d'approbation / décaissement agence : au plus %s par dossier", fmt_full(DELEGATION_AGENCE)),
+              right = downloadButton("dl_quality", "Exporter la qualité par agence (CSV)", class = "btn-red")),
+  uiOutput("aq_kpis"),
+  card_x("Qualité des Actifs par Agence", icon_name = "building-columns",
+         subtitle = "Répartition IFRS 9, PAR30, NPL, couverture ECL et note de qualité (A = meilleure, D = critique)",
+         DTOutput("aq_table")),
+  layout_columns(
+    col_widths = c(7, 5),
+    card_x("Concentration du NPL : Top 10 Agences (Pareto)", icon_name = "chart-column",
+           subtitle = "Encours NPL (Stage 3) par agence et part cumulée du NPL total",
+           plotlyOutput("aq_pareto", height = "360px")),
+    card_x("Top 5 Clients NPL dans le Top 10 des Agences", icon_name = "user-xmark",
+           subtitle = "Poids des 5 plus gros débiteurs NPL dans le NPL du top 10 des agences",
+           plotlyOutput("aq_top5_donut", height = "220px"),
+           uiOutput("aq_top5_note"))
+  ),
+  card_x("Identification des 5 Clients NPL Concentrant le Risque", icon_name = "id-card",
+         subtitle = "Plus gros débiteurs en défaut (Stage 3) parmi les 10 agences les plus exposées au NPL",
+         DTOutput("aq_top5")),
+  layout_columns(
+    col_widths = c(5, 7),
+    card_x("Pouvoir de Décaissement des Agences", icon_name = "stamp",
+           subtitle = sprintf("Dossiers dont le montant approuvé dépasse %s : niveau d'approbation", fmt_full(DELEGATION_AGENCE)),
+           plotlyOutput("aq_deleg_chart", height = "300px"),
+           uiOutput("aq_deleg_note")),
+    card_x("Dépassements de Délégation (Approuvés en Agence > 1 M USD)", icon_name = "ban",
+           subtitle = "Dossiers approuvés localement au-delà du pouvoir de l'agence : régularisation par le comité requise",
+           DTOutput("aq_breaches"))
+  ),
+  card_x("Délégations par Agence", icon_name = "sitemap",
+         subtitle = "Volume approuvé dans et hors délégation, plus gros montant approuvé",
+         DTOutput("aq_deleg_table")),
+  card_x("Top 20 Clients (par Encours)", icon_name = "ranking-star",
+         subtitle = "Plus grosses expositions individuelles du périmètre",
+         right = seg_toggle("aq_top20_mode", c("Tous" = "ALL", "Clients NPL" = "NPL", "Clients Stage 2" = "S2")),
+         DTOutput("aq_top20")),
+  layout_columns(
+    col_widths = c(5, 7),
+    card_x("Qualité du Portefeuille par RM", icon_name = "user-tie",
+           subtitle = "NPL et PAR30 des 15 portefeuilles les plus dégradés",
+           plotlyOutput("aq_rm_chart", height = "420px")),
+    card_x("Scorecard Qualité des Relationship Managers", icon_name = "list-check",
+           DTOutput("aq_rm_table"))
+  )
+)
+
 page_performance <- tagList(
   page_header("Pilotage commercial & performance ajustée au risque",
               "Performance des Chargés d'Affaires & Agences (Scorecards & RAROC)",
@@ -365,6 +446,8 @@ ui <- page(
                 nav_panel_hidden("vintage", page_vintage),
                 nav_panel_hidden("arrears", page_arrears),
                 nav_panel_hidden("concentration", page_concentration),
+                nav_panel_hidden("limits", page_limits),
+                nav_panel_hidden("quality", page_quality),
                 nav_panel_hidden("performance", page_performance),
                 nav_panel_hidden("stress", page_stress),
                 nav_panel_hidden("report", page_report)

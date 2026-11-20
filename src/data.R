@@ -314,6 +314,12 @@ gen_portfolio <- function(seed = 1126) {
                       ifelse(u < .85, df$dpd - 30L, df$dpd))))
   df$dpd_m1[df$date_octroi > ARRETE - 30] <- 0L
   df$joignable <- runif(n) < ifelse(df$segment == "Retail & Particuliers", .78, .9)  # contact téléphonique valide
+  # niveau d'approbation : délégation agence <= 1 M USD, au-delà comité siège / conseil
+  siege <- df$agence %in% c("Gombe Siège", "Lubumbashi Siège")
+  ub <- runif(n)
+  df$approbateur <- ifelse(df$autorisation <= DELEGATION_AGENCE, "Agence (délégation locale)",
+                    ifelse(!siege & ub < .07 & df$segment %in% c("PME", "Retail & Particuliers") & df$autorisation <= 5e6, "Agence (hors délégation)",
+                    ifelse(df$autorisation > 25e6, "Conseil d'Administration", "Comité de Crédit Siège")))
   df
 }
 

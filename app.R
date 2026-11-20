@@ -63,6 +63,8 @@ server <- function(input, output, session) {
   source("src/server/server_vintage.R",       local = TRUE, encoding = "UTF-8")
   source("src/server/server_arrears.R",      local = TRUE, encoding = "UTF-8")
   source("src/server/server_concentration.R", local = TRUE, encoding = "UTF-8")
+  source("src/server/server_limits.R",       local = TRUE, encoding = "UTF-8")
+  source("src/server/server_quality.R",      local = TRUE, encoding = "UTF-8")
   source("src/server/server_performance.R",   local = TRUE, encoding = "UTF-8")
   source("src/server/server_stress.R",        local = TRUE, encoding = "UTF-8")
   source("src/server/server_report.R",        local = TRUE, encoding = "UTF-8")

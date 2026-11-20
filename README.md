@@ -17,7 +17,7 @@ reproductible (`set.seed(1126)`).
 staging IFRS 9 Q2 → Q3 2026 (matrice de Markov), PD / LGD / ECL, collatéraux, devises USD/CDF,
 dérogations et rentabilité (RAROC, EVA).
 
-## Pages (8)
+## Pages (10)
 
 1. **Vue d'ensemble** : KPIs (encours, NPL, PAR30, ECL), staging par segment et par secteur, HHI, vintage, performance par région, alertes EWS générées à partir des données.
 2. **Segmentation & Régions** : carte des 50 agences (exposition / PAR30 / part CDF / collatéraux), staging régional, sensibilité FX, matrice des agences et délégations.
@@ -30,9 +30,17 @@ dérogations et rentabilité (RAROC, EVA).
    - simulateur de capacité (agents × dossiers/jour × efficacité) avec courbe de gains « priorisation vs hasard » ;
    - suivi par région et par agence, file d'actions priorisée par perte évitable (EAD × P(bascule) × LGD), export CSV.
 5. **Concentration & HHI** : limites sectorielles, jauge HHI, courbe de Lorenz, Top 20 des groupes (ratio / Tier 1, exemption souveraine), carte de chaleur, stress du plus grand débiteur.
-6. **Performance RMs & Agences** : matrice RAROC × coût du risque, benchmark des 5 régions, scorecards des RMs et des agences, dérogations.
-7. **Stress Testing & RAROC** : scénarios Baseline / Adverse / Sévère ou personnalisés (curseurs), trajectoire du CAR, cascade des impacts, impact par secteur, reverse stress test, RAROC stressé.
-8. **Reporting réglementaire** : synthèse trimestrielle, benchmark des agences, export CSV et instance XML (format type XBRL, simplifié).
+6. **Limites d'exposition** (périmètre consolidé) : 29 limites suivies — plus grande exposition individuelle (≤ 25 % des fonds propres, souverain exempté), somme des grands risques (> 10 % FP, ≤ 800 %), top 20 clients (≤ 40 %), 12 secteurs, 5 régions, 4 segments, part CDF, HHI, NPL, PAR30 et dépassements de délégation ; taux d'utilisation, marge disponible, statut (conforme / alerte > 85 % / dépassé), liste des grands risques, carte région × secteur, capacité d'octroi résiduelle, export CSV.
+7. **Qualité des actifs des agences** :
+   - qualité des actifs par agence (S1/S2/S3, PAR30, NPL, couverture ECL, note A à D) ;
+   - concentration du NPL sur le top 10 des agences (Pareto) ;
+   - poids des 5 plus gros clients NPL dans le NPL de ces 10 agences, et identification de ces clients (agence, RM, retard, ECL, garanties, niveau d'approbation) ;
+   - pouvoir de décaissement : plafond de 1 000 000 USD par dossier en agence, dossiers au-delà validés en comité ou approuvés hors délégation, délégations par agence ;
+   - top 20 clients (tous / NPL / Stage 2) ;
+   - qualité du portefeuille par RM (graphique et scorecard).
+8. **Performance RMs & Agences** : matrice RAROC × coût du risque, benchmark des 5 régions, scorecards des RMs et des agences, dérogations.
+9. **Stress Testing & RAROC** : scénarios Baseline / Adverse / Sévère ou personnalisés (curseurs), trajectoire du CAR, cascade des impacts, impact par secteur, reverse stress test, RAROC stressé.
+10. **Reporting réglementaire** : synthèse trimestrielle, benchmark des agences, export CSV et instance XML (format type XBRL, simplifié).
 
 Filtres globaux (région, segment) et bascule de devise **USD / CDF** (2 840 CDF/USD) dans la barre supérieure.
 
@@ -54,7 +62,7 @@ src/config.R              # paramètres, régions, 50 agences, 12 secteurs, seui
 src/data.R                # générateur du portefeuille simulé
 src/helpers.R             # formatage, composants UI, vintage, transitions, moteur de stress
 src/arrears.R             # modèle d'arriérés précoces : tranches, score logistique, backtest, stratégies
-src/ui.R                  # mise en page et 8 pages
+src/ui.R                  # mise en page et 10 pages
 src/server/server_*.R     # logique serveur de chaque page
 www/styles.css, app.js    # thème et navigation
 ```

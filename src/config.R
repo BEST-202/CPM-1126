@@ -20,6 +20,14 @@ SEUIL_HHI     <- 2000
 SEUIL_COR     <- 0.025   # tolérance coût du risque RM (250 bps)
 SEUIL_COR_ALERT <- 0.030 # alerte coût du risque (300 bps)    # norme HHI
 LIMITE_INDIV  <- 0.25    # limite grand risque individuel (% fonds propres)
+DELEGATION_AGENCE <- 1e6 # pouvoir d'approbation / décaissement maximal d'une agence (USD)
+SEUIL_GRAND_RISQUE <- 0.10   # un grand risque = exposition > 10 % des fonds propres
+LIMITE_GRANDS_RISQUES <- 8   # somme des grands risques <= 800 % des fonds propres
+LIMITE_TOP20  <- 0.40    # top 20 clients <= 40 % de l'encours
+LIMITE_CDF    <- 0.20    # encours en CDF <= 20 %
+LIMITES_REGION  <- c(R1 = 0.60, R2 = 0.05, RC = 0.08, R3 = 0.40, R4 = 0.20)
+LIMITES_SEGMENT <- c("Corporate Grands Comptes" = 0.50, "PME" = 0.30, "Retail & Particuliers" = 0.20,
+                     "Secteur Public & Souverain" = 0.25)
 CAR_MIN       <- 0.10    # ratio de solvabilité minimum réglementaire
 CAR_ALERT     <- 0.125   # seuil d'alerte COMEX
 HURDLE        <- 0.16    # coût des fonds propres (Ke)
