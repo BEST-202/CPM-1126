@@ -243,7 +243,7 @@ gen_portfolio <- function(seed = 1126) {
   df$statut <- ifelse(wo, "Passé en perte", "Actif")
 
   # jours de retard
-  df$dpd <- ifelse(cur == 1, ifelse(runif(n) < .86, 0L, sample(1:29, n, TRUE)),
+  df$dpd <- ifelse(cur == 1, ifelse(runif(n) < .95, 0L, sample(1:29, n, TRUE)),
             ifelse(cur == 2, ifelse(runif(n) < .40, sample(30:89, n, TRUE), sample(0:29, n, TRUE)),
                    sample(90:540, n, TRUE)))
   corp_s2 <- cur == 2 & df$segment != "PME" & df$segment != "Retail & Particuliers"
@@ -302,7 +302,18 @@ gen_portfolio <- function(seed = 1126) {
   df$derogation <- ifelse(runif(n) < pmin(.5, .045 * rms$derog_bias[match(df$rm_id, rms$rm_id)]),
                           sample(c("Taux & Marge", "Collatéral < 120%", "Maturité"), n, TRUE, c(.43, .36, .21)),
                           NA_character_)
-  df$rm_id <- df$rm_id
+  # ------------------------------------------------------------ historique de retard M-1
+  # (tiré en fin de génération pour ne pas modifier les tirages précédents)
+  u <- runif(n)
+  df$dpd_m1 <- ifelse(df$dpd == 0,
+                      ifelse(u < pmin(.30, df$pd12 * 2.5), sample(1:45, n, TRUE), 0L),       # guérisons
+               ifelse(df$dpd < 30,
+                      ifelse(u < .55, 0L, pmax(0L, df$dpd - sample(0:7, n, TRUE))),          # nouvelles entrées / stagnation
+               ifelse(df$dpd < 90,
+                      ifelse(u < .80, df$dpd - 30L, df$dpd),                                 # roll-forward / paiement partiel
+                      ifelse(u < .85, df$dpd - 30L, df$dpd))))
+  df$dpd_m1[df$date_octroi > ARRETE - 30] <- 0L
+  df$joignable <- runif(n) < ifelse(df$segment == "Retail & Particuliers", .78, .9)  # contact téléphonique valide
   df
 }
 

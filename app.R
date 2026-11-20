@@ -14,6 +14,7 @@ suppressPackageStartupMessages({
 source("src/config.R",  local = TRUE, encoding = "UTF-8")
 source("src/data.R",    local = TRUE, encoding = "UTF-8")
 source("src/helpers.R", local = TRUE, encoding = "UTF-8")
+source("src/arrears.R", local = TRUE, encoding = "UTF-8")
 source("src/ui.R",      local = TRUE, encoding = "UTF-8")
 
 dt_x <- function(df, page = FALSE, page_len = 10, order = NULL, search = page, ...) {
@@ -60,6 +61,7 @@ server <- function(input, output, session) {
   source("src/server/server_overview.R",      local = TRUE, encoding = "UTF-8")
   source("src/server/server_regions.R",       local = TRUE, encoding = "UTF-8")
   source("src/server/server_vintage.R",       local = TRUE, encoding = "UTF-8")
+  source("src/server/server_arrears.R",      local = TRUE, encoding = "UTF-8")
   source("src/server/server_concentration.R", local = TRUE, encoding = "UTF-8")
   source("src/server/server_performance.R",   local = TRUE, encoding = "UTF-8")
   source("src/server/server_stress.R",        local = TRUE, encoding = "UTF-8")

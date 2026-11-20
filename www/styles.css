@@ -249,3 +249,16 @@ table.dataTable tfoot td { font-weight: 700; background: #f6f7f9; }
   .tb-select select { width: 140px !important; }
 }
 .st.dark { background: var(--navy); color: #fff; }
+
+/* arriérés précoces : matrice stratégique */
+.strat-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.strat { border: 1px solid var(--line); border-top: 4px solid var(--green); border-radius: 5px; padding: 12px; display: flex; flex-direction: column; }
+.strat.bad { border-top-color: var(--red); } .strat.warn { border-top-color: var(--orange); }
+.strat.neutral { border-top-color: #1f3a93; } .strat.dark { border-top-color: var(--navy); }
+.strat-h { font-size: 10.5px; text-transform: uppercase; letter-spacing: .8px; font-weight: 700; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.strat-t { font-weight: 700; font-size: 14.5px; margin: 6px 0 2px; }
+.strat-n { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.strat-n small { font-size: 11px; color: var(--muted); font-weight: 400; }
+.strat-a { font-size: 11.5px; color: #374151; margin: 8px 0 0; line-height: 1.5; }
+@media (max-width: 1200px) { .strat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .strat-grid { grid-template-columns: 1fr; } }

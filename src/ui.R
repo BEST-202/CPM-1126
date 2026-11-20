@@ -6,6 +6,7 @@ NAV_ITEMS <- list(
   list(id = "overview",      label = "Vue d'ensemble Portefeuille",      icon = "table-cells-large"),
   list(id = "regions",       label = "Segmentation & Régions",           icon = "earth-africa"),
   list(id = "vintage",       label = "Vintage Curves & Staging IFRS 9",  icon = "chart-line"),
+  list(id = "arrears",       label = "Arriérés Précoces & Recouvrement", icon = "hourglass-half"),
   list(id = "concentration", label = "Risque de Concentration & HHI",    icon = "circle-nodes"),
   list(id = "performance",   label = "Performance RMs & Agences",        icon = "briefcase"),
   list(id = "stress",        label = "Stress Testing & RAROC",           icon = "wave-square"),
@@ -165,6 +166,64 @@ page_vintage <- tagList(
   )
 )
 
+page_arrears <- tagList(
+  page_header("Recouvrement amiable & arriérés précoces", "Modèle de Gestion des Arriérés Précoces (Early Collections)",
+              tag = "Score de bascule PAR30 · Roll rates · Stratégies de recouvrement",
+              right = div(class = "flex-gap",
+                          downloadButton("dl_arrears_queue", "Exporter la file d'actions (CSV)", class = "btn-red"))),
+  uiOutput("ar_kpis"),
+  layout_columns(
+    col_widths = c(6, 6),
+    card_x("Pyramide des Retards & Taux de Bascule", icon_name = "stairs",
+           subtitle = "Encours par tranche de retard (barres) et taux de passage à la tranche supérieure sur le mois (courbe)",
+           plotlyOutput("ar_buckets", height = "330px")),
+    card_x("Matrice des Roll Rates (M-1 → M)", icon_name = "table-cells",
+           subtitle = "Répartition de l'encours de chaque tranche du mois précédent selon sa tranche actuelle",
+           right = seg_toggle("ar_rr_mode", c("Taux %" = "pct", "Montants" = "val")),
+           DTOutput("ar_rollrates"))
+  ),
+  layout_columns(
+    col_widths = c(5, 7),
+    card_x("Score de Bascule : Modèle Logistique", icon_name = "brain",
+           subtitle = "P(passage en PAR30+ ou aggravation de tranche au mois suivant)",
+           DTOutput("ar_coef"), uiOutput("ar_backtest")),
+    card_x("Backtest & Calibration du Score", icon_name = "bullseye",
+           subtitle = "Score calculé à M-1 vs bascule observée à M, par décile de risque",
+           plotlyOutput("ar_calib", height = "300px"),
+           uiOutput("ar_classes"))
+  ),
+  card_x("Matrice Stratégique de Recouvrement (Risque × Montant)", icon_name = "chess",
+         subtitle = "Chaque dossier en arriérés précoces est orienté vers un canal de recouvrement avec un délai de traitement (SLA)",
+         uiOutput("ar_strategy")),
+  layout_columns(
+    col_widths = c(7, 5),
+    card_x("Simulateur de Capacité & Priorisation", icon_name = "sliders",
+           subtitle = "Couverture de la perte évitable selon le nombre de dossiers traités (priorisation par score vs traitement au hasard)",
+           div(class = "custom-grid",
+               sliderInput("ar_agents", "Agents de recouvrement", 1, 30, 3, step = 1),
+               sliderInput("ar_prod", "Dossiers traités / agent / jour", 2, 30, 6, step = 1),
+               sliderInput("ar_eff", "Efficacité du contact (réduction de bascule)", 5, 70, 35, step = 5, post = " %")),
+           plotlyOutput("ar_gains", height = "300px")),
+    card_x("Impact du Dispositif", icon_name = "piggy-bank", uiOutput("ar_impact"))
+  ),
+  layout_columns(
+    col_widths = c(5, 7),
+    card_x("Arriérés Précoces par Région", icon_name = "map-location-dot",
+           subtitle = "Encours en retard 1-89 jours par tranche",
+           plotlyOutput("ar_region", height = "320px")),
+    card_x("Agences sous Tension (Arriérés 1-29 j)", icon_name = "building-circle-exclamation",
+           subtitle = "Taux d'entrée en impayés et taux d'auto-régularisation par agence",
+           DTOutput("ar_agencies"))
+  ),
+  card_x("File d'Actions Priorisée (Recouvrement du Jour)", icon_name = "list-check",
+         subtitle = "Dossiers classés par perte évitable (EAD × P(bascule) × LGD)",
+         right = seg_toggle("ar_queue_filter", c("Tous" = "ALL", "Critiques (C/D)" = "HIGH",
+                                                 "Visites terrain" = "Visite terrain & restructuration",
+                                                 "Centre d'appels" = "Centre d'appels intensif",
+                                                 "Injoignables" = "UNREACH")),
+         DTOutput("ar_queue"))
+)
+
 page_concentration <- tagList(
   page_header("Concentration, grands risques & limites prudentielles",
               "Risque de Concentration & Suivi des Top 20 Débiteurs",
@@ -304,6 +363,7 @@ ui <- page(
                 nav_panel_hidden("overview", page_overview),
                 nav_panel_hidden("regions", page_regions),
                 nav_panel_hidden("vintage", page_vintage),
+                nav_panel_hidden("arrears", page_arrears),
                 nav_panel_hidden("concentration", page_concentration),
                 nav_panel_hidden("performance", page_performance),
                 nav_panel_hidden("stress", page_stress),

@@ -17,15 +17,22 @@ reproductible (`set.seed(1126)`).
 staging IFRS 9 Q2 → Q3 2026 (matrice de Markov), PD / LGD / ECL, collatéraux, devises USD/CDF,
 dérogations et rentabilité (RAROC, EVA).
 
-## Pages
+## Pages (8)
 
 1. **Vue d'ensemble** : KPIs (encours, NPL, PAR30, ECL), staging par segment et par secteur, HHI, vintage, performance par région, alertes EWS générées à partir des données.
 2. **Segmentation & Régions** : carte des 50 agences (exposition / PAR30 / part CDF / collatéraux), staging régional, sensibilité FX, matrice des agences et délégations.
 3. **Vintage & Staging IFRS 9** : courbes de vintage par cohorte et segment, matrice de transition, flux de réconciliation, décomposition PD × LGD × EAD, pondération des scénarios forward-looking.
-4. **Concentration & HHI** : limites sectorielles, jauge HHI, courbe de Lorenz, Top 20 des groupes (ratio / Tier 1, exemption souveraine), carte de chaleur, stress du plus grand débiteur.
-5. **Performance RMs & Agences** : matrice RAROC × coût du risque, benchmark des 5 régions, scorecards des RMs et des agences, dérogations.
-6. **Stress Testing & RAROC** : scénarios Baseline / Adverse / Sévère ou personnalisés (curseurs), trajectoire du CAR, cascade des impacts, impact par secteur, reverse stress test, RAROC stressé.
-7. **Reporting réglementaire** : synthèse trimestrielle, benchmark des agences, export CSV et instance XML (format type XBRL, simplifié).
+4. **Arriérés précoces & recouvrement** (early collections) :
+   - tranches de retard (1-7, 8-15, 16-29, 30-59, 60-89, 90+ jours) et matrice des *roll rates* M-1 → M ;
+   - taux d'entrée en impayés, d'auto-régularisation (self-cure) et de bascule vers le NPL ;
+   - **score de bascule** : régression logistique estimée sur 70 % de l'historique (retard, PD, antécédent SICR, devise, ancienneté, segment, tirage, collatéral, région, joignabilité), backtest hors échantillon sur 30 % (AUC, Gini, KS, calibration par décile), classes A à D ;
+   - matrice stratégique risque × montant → canal de recouvrement et SLA (visite terrain, centre d'appels, relance RM, relance digitale, pré-contentieux) ;
+   - simulateur de capacité (agents × dossiers/jour × efficacité) avec courbe de gains « priorisation vs hasard » ;
+   - suivi par région et par agence, file d'actions priorisée par perte évitable (EAD × P(bascule) × LGD), export CSV.
+5. **Concentration & HHI** : limites sectorielles, jauge HHI, courbe de Lorenz, Top 20 des groupes (ratio / Tier 1, exemption souveraine), carte de chaleur, stress du plus grand débiteur.
+6. **Performance RMs & Agences** : matrice RAROC × coût du risque, benchmark des 5 régions, scorecards des RMs et des agences, dérogations.
+7. **Stress Testing & RAROC** : scénarios Baseline / Adverse / Sévère ou personnalisés (curseurs), trajectoire du CAR, cascade des impacts, impact par secteur, reverse stress test, RAROC stressé.
+8. **Reporting réglementaire** : synthèse trimestrielle, benchmark des agences, export CSV et instance XML (format type XBRL, simplifié).
 
 Filtres globaux (région, segment) et bascule de devise **USD / CDF** (2 840 CDF/USD) dans la barre supérieure.
 
@@ -46,7 +53,8 @@ app.R                     # point d'entrée : filtres, réactifs, export
 src/config.R              # paramètres, régions, 50 agences, 12 secteurs, seuils
 src/data.R                # générateur du portefeuille simulé
 src/helpers.R             # formatage, composants UI, vintage, transitions, moteur de stress
-src/ui.R                  # mise en page et 7 pages
+src/arrears.R             # modèle d'arriérés précoces : tranches, score logistique, backtest, stratégies
+src/ui.R                  # mise en page et 8 pages
 src/server/server_*.R     # logique serveur de chaque page
 www/styles.css, app.js    # thème et navigation
 ```
